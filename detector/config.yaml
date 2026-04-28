@@ -1,0 +1,49 @@
+# Nginx log path (mounted from shared Docker volume)
+log_path: /var/log/nginx/hng-access.log
+
+# Audit log path
+audit_log_path: /var/log/detector/audit.log
+
+# Slack configuration
+slack:
+  webhook_url: "YOUR_SLACK_WEBHOOK_URL_HERE"
+
+# Dashboard configuration
+dashboard:
+  host: "0.0.0.0"
+  port: 8080
+  refresh_interval: 3  # seconds
+
+# Sliding window configuration
+sliding_window:
+  duration: 60  # seconds — track requests over last 60s
+
+# Baseline configuration
+baseline:
+  window_minutes: 30        # rolling window size
+  recalc_interval: 60       # recalculate every 60 seconds
+  min_samples: 10           # minimum samples before baseline is trusted
+  floor_mean: 1.0           # never let mean drop below this (avoid div by zero)
+  floor_stddev: 0.5         # never let stddev drop below this
+  min_hourly_samples: 60    # prefer hourly baseline when it has this many samples
+
+# Anomaly detection thresholds
+detection:
+  zscore_threshold: 3.0     # flag if z-score exceeds this
+  rate_multiplier: 5.0      # flag if rate exceeds mean * this
+  error_rate_multiplier: 3.0  # tighten thresholds if 4xx/5xx rate is this * baseline
+  tightened_zscore: 2.0     # tightened z-score threshold during error surge
+  tightened_multiplier: 3.0 # tightened rate multiplier during error surge
+
+# Ban backoff schedule (seconds)
+ban:
+  backoff_schedule:
+    - 600      # 1st offence  — 10 minutes
+    - 1800     # 2nd offence  — 30 minutes
+    - 7200     # 3rd offence  — 2 hours
+    - -1       # 4th offence+ — permanent (-1 means never unban)
+
+# iptables configuration
+iptables:
+  chain: "INPUT"
+  protocol: "tcp"
