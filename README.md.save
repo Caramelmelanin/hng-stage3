@@ -1,3 +1,4 @@
+cat > README.md << 'ENDOFFILE'
 # HNG Stage 3 — Anomaly Detection Engine
 
 A real-time DDoS detection and automated response daemon built alongside Nextcloud on Docker.
@@ -120,68 +121,7 @@ curl -fsSL https://get.docker.com | sudo sh
 sudo usermod -aG docker $USER
 newgrp docker
 sudo apt-get install -y docker-compose-plugin iptables
+
 ### 3. Clone the repository
 git clone https://github.com/Caramelmelanin/hng-stage3.git
 cd hng-stage3
-### 4. Configure the Slack webhook
-nano detector/config.yaml
-Replace YOUR_SLACK_WEBHOOK_URL_HERE with your real Slack incoming webhook URL.
-
-### 5. Create the audit log directory
-docker exec hng-detector mkdir -p /var/log/detector
-### 6. Start the stack
-docker compose up -d --build
-### 7. Verify everything is running
-docker compose ps
-docker compose logs -f detector
-curl http://localhost:8080/api/metrics
-### 8. Access the dashboard
-Open http://your-server-ip:8080 in your browser.
-For a domain, point an A record to your server IP and access via the domain.
-
----
-
-## Repository Structure
-Entry point — wires all modules, runs main event loop
-monitor.py       # Tails and parses Nginx JSON access log
-baseline.py      # Rolling 30-min baseline with per-hour slots
-detector.py      # Z-score and rate multiplier anomaly detection
-blocker.py       # iptables DROP rules for banned IPs
-unbanner.py      # Backoff-schedule auto-unban scheduler
-notifier.py      # Slack webhook alerts
-dashboard.py     # Live metrics web dashboard
-config.yaml      # All thresholds and configuration
-requirements.txt # Python dependencies
-Dockerfile
-nginx/
-nginx.conf       # Reverse proxy with JSON logging
-docs/
-architecture.png
-screenshots/
-README.md
----
-
-## Architecture
-Internet
-|
-v
-Nginx (port 80)
-JSON logs -> HNG-nginx-logs volume
-|
-v
-Nextcloud (internal)
-HNG-nginx-logs volume
-|
-v
-Python Daemon
-monitor.py   -> parses log lines
-baseline.py  -> rolling mean/stddev
-detector.py  -> z-score + rate check
-blocker.py   -> iptables DROP
-unbanner.py  -> backoff unban
-notifier.py  -> Slack alerts
-dashboard.py -> web UI port 8080
-## Blog Post
-
-Read the full beginner-friendly walkthrough here:
-[https://medium.com/p/3aaead27aef0?postPublishedType=initial]

@@ -18,3 +18,5 @@ COPY . .
 ENV CONFIG_PATH=/app/config.yaml
 
 CMD ["python", "main.py"]
+
+RUN mkdir -p /var/log/detector
